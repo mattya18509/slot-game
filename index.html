@@ -23,17 +23,20 @@ h1 {
     display: flex;
     justify-content: center;
     gap: 20px;
-    margin: 40px 0;
+    margin: 30px 0;
 }
 
 .number {
-    background: white;
-    color: black;
     width: 100px;
     height: 120px;
-    font-size: 80px;
-    line-height: 120px;
+    background: white;
+    color: black;
     border-radius: 15px;
+    font-size: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
 }
 
 button {
@@ -43,7 +46,7 @@ button {
     cursor: pointer;
 }
 
-#message {
+#result {
     font-size: 30px;
     margin-top: 30px;
 }
@@ -55,89 +58,142 @@ button {
 <h1>🎰 SLOT GAME 🎰</h1>
 
 <div class="slot">
-    <div class="number" id="left">7</div>
-    <div class="number" id="middle">7</div>
-    <div class="number" id="right">7</div>
+    <div class="number" id="slot1">7</div>
+    <div class="number" id="slot2">7</div>
+    <div class="number" id="slot3">7</div>
 </div>
 
 <button id="stopButton">STOP</button>
 
-<div id="message">ボタンを押してスタート！</div>
+<div id="result">1回目：左を止めます</div>
 
 <script>
 
-const numbers = ["1", "2", "3", "4", "5", "6", "7"];
+const slots = [
+    document.getElementById("slot1"),
+    document.getElementById("slot2"),
+    document.getElementById("slot3")
+];
 
-const left = document.getElementById("left");
-const middle = document.getElementById("middle");
-const right = document.getElementById("right");
 const button = document.getElementById("stopButton");
-const message = document.getElementById("message");
+const result = document.getElementById("result");
 
-let stopped = 0;
-let timer;
+let numbers = [7, 7, 7];
 
-function startSlot() {
+let stopped = [false, false, false];
 
-    stopped = 0;
-    message.textContent = "STOPボタンで左から止めよう！";
+let timer = null;
+
+
+// スロットを動かす
+function startSlots() {
+
+    stopped = [false, false, false];
+
+    result.textContent = "1回目：左を止めます";
 
     timer = setInterval(() => {
-        left.textContent = numbers[Math.floor(Math.random() * numbers.length)];
-        middle.textContent = numbers[Math.floor(Math.random() * numbers.length)];
-        right.textContent = numbers[Math.floor(Math.random() * numbers.length)];
+
+        for (let i = 0; i < 3; i++) {
+
+            if (!stopped[i]) {
+
+                numbers[i] = Math.floor(Math.random() * 9) + 1;
+
+                slots[i].textContent = numbers[i];
+
+            }
+
+        }
+
     }, 100);
 
 }
 
-button.addEventListener("click", () => {
 
-    if (stopped < 3) {
+// 結果を判定
+function checkResult() {
 
-        if (stopped === 0) {
-            clearInterval(timer);
-            stopped++;
-            message.textContent = "次は真ん中！";
-        }
+    if (numbers[0] === 7 &&
+        numbers[1] === 7 &&
+        numbers[2] === 7) {
 
-        else if (stopped === 1) {
-            stopped++;
-            message.textContent = "次は右！";
-        }
+        result.textContent = "🎉🎉🎉 777 大当たり！！ 🎉🎉🎉";
 
-        else if (stopped === 2) {
-            stopped++;
+    }
+    else if (numbers[0] === numbers[1] &&
+             numbers[1] === numbers[2]) {
 
-            message.textContent = "結果を確認中...";
+        result.textContent = "🎊 当たり！ 🎊";
 
-            setTimeout(() => {
+    }
+    else {
 
-                const a = left.textContent;
-                const b = middle.textContent;
-                const c = right.textContent;
-
-                if (a === "7" && b === "7" && c === "7") {
-                    message.textContent = "🎉🎉 大当たり！！ 🎉🎉";
-                }
-                else if (a === b && b === c) {
-                    message.textContent = "🎊 当たり！ 🎊";
-                }
-                else {
-                    message.textContent = "はずれ...";
-                }
-
-            }, 500);
-        }
-
-    } else {
-
-        startSlot();
+        result.textContent = "はずれ...";
 
     }
 
+}
+
+
+// STOPボタン
+button.addEventListener("click", () => {
+
+    // まだ動いていない場合
+    if (timer === null) {
+        startSlots();
+        return;
+    }
+
+
+    // 1回目 → 左
+    if (!stopped[0]) {
+
+        stopped[0] = true;
+
+        result.textContent = "2回目：真ん中を止めます";
+
+        return;
+    }
+
+
+    // 2回目 → 真ん中
+    if (!stopped[1]) {
+
+        stopped[1] = true;
+
+        result.textContent = "3回目：右を止めます";
+
+        return;
+    }
+
+
+    // 3回目 → 右
+    if (!stopped[2]) {
+
+        stopped[2] = true;
+
+        clearInterval(timer);
+        timer = null;
+
+        checkResult();
+
+        button.textContent = "もう一度";
+
+        return;
+    }
+
+
+    // 4回目 → 最初から
+    button.textContent = "STOP";
+
+    startSlots();
+
 });
 
-startSlot();
+
+// 最初からスタート
+startSlots();
 
 </script>
 
