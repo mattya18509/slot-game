@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>スロットゲーム 🎰</title>
+
+<style>
+body {
+    background: black;
+    color: white;
+    text-align: center;
+    font-family: sans-serif;
+    margin: 0;
+    padding-top: 50px;
+}
+
+h1 {
+    font-size: 40px;
+}
+
+.slot {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 40px 0;
+}
+
+.number {
+    background: white;
+    color: black;
+    width: 100px;
+    height: 120px;
+    font-size: 80px;
+    line-height: 120px;
+    border-radius: 15px;
+}
+
+button {
+    font-size: 30px;
+    padding: 15px 40px;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+#message {
+    font-size: 30px;
+    margin-top: 30px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎰 SLOT GAME 🎰</h1>
+
+<div class="slot">
+    <div class="number" id="left">7</div>
+    <div class="number" id="middle">7</div>
+    <div class="number" id="right">7</div>
+</div>
+
+<button id="stopButton">STOP</button>
+
+<div id="message">ボタンを押してスタート！</div>
+
+<script>
+
+const numbers = ["1", "2", "3", "4", "5", "6", "7"];
+
+const left = document.getElementById("left");
+const middle = document.getElementById("middle");
+const right = document.getElementById("right");
+const button = document.getElementById("stopButton");
+const message = document.getElementById("message");
+
+let stopped = 0;
+let timer;
+
+function startSlot() {
+
+    stopped = 0;
+    message.textContent = "STOPボタンで左から止めよう！";
+
+    timer = setInterval(() => {
+        left.textContent = numbers[Math.floor(Math.random() * numbers.length)];
+        middle.textContent = numbers[Math.floor(Math.random() * numbers.length)];
+        right.textContent = numbers[Math.floor(Math.random() * numbers.length)];
+    }, 100);
+
+}
+
+button.addEventListener("click", () => {
+
+    if (stopped < 3) {
+
+        if (stopped === 0) {
+            clearInterval(timer);
+            stopped++;
+            message.textContent = "次は真ん中！";
+        }
+
+        else if (stopped === 1) {
+            stopped++;
+            message.textContent = "次は右！";
+        }
+
+        else if (stopped === 2) {
+            stopped++;
+
+            message.textContent = "結果を確認中...";
+
+            setTimeout(() => {
+
+                const a = left.textContent;
+                const b = middle.textContent;
+                const c = right.textContent;
+
+                if (a === "7" && b === "7" && c === "7") {
+                    message.textContent = "🎉🎉 大当たり！！ 🎉🎉";
+                }
+                else if (a === b && b === c) {
+                    message.textContent = "🎊 当たり！ 🎊";
+                }
+                else {
+                    message.textContent = "はずれ...";
+                }
+
+            }, 500);
+        }
+
+    } else {
+
+        startSlot();
+
+    }
+
+});
+
+startSlot();
+
+</script>
+
+</body>
+</html>
